@@ -6,7 +6,7 @@ $total = 0;
 if($file) {
     $inputText = fread($file, filesize($file_name));
 
-    $arr_str = str_mover($inputText);
+    $arr_str = preg_split("/\r\n|\n|\r/", $inputText);
     $count = count($arr_str);
 
     echo(execute($arr_str, $total));
@@ -16,12 +16,6 @@ if($file) {
 }
 
 // Helper functions
-function str_mover(String $str) {
-    
-    // return explode('/\r\n|\n/', $str);
-    return $array = preg_split("/\r\n|\n|\r/", $str);
-}
-
 function execute($arr, &$total) {
 
     $symbolArr = [];
@@ -33,15 +27,28 @@ function execute($arr, &$total) {
             continue;
         }
         if($i === 2 ) {
-            var_dump($symbolArr[0][1][1]);
+            var_dump($symbolArr[0][0][1]);
+            // echo($symbolArr[0][1][1]);
+            // echo($symbolArr[0][1][0]);
         }
 
         for($j = 0; $j < count($symbolArr[0]); $j++) {
             if($i === 0) {
-                // $total = $symbolArr[0][$j][]
+                //not needed haha
+
+                //bottom
             } else if($i === count($arr) - 1) {
+                //top
+
     
             } else {
+                //top
+
+                //bottom
+
+                //left
+
+                //right
     
             }
         }
@@ -52,4 +59,54 @@ function execute($arr, &$total) {
     
     return null;
 }
+
+function checkLeft(String $str, $pos) {
+    if($str[$pos -1] === '.') {
+        return;
+    }
+    $numberStr = '';
+    $index = 0;
+    while($str[$index] !== '.') {
+        $numberStr = $str[$index] . $numberStr;
+        $index--;
+    }
+
+    return (int)$numberStr;
+}
+
+function checkRight(String $str, $pos) {
+    if($str[$pos + 1] === '.') {
+        return;
+    }
+    $numberStr = '';
+    $index = 0;
+    while($str[$index] !== '.') {
+        $numberStr = $str[$index] . $numberStr;
+        $index++;
+    }
+
+    return (int)$numberStr;
+}
+
+function checkTop(String $str, $pos) {
+    if($str[$pos - 1] !== '.') {
+        if($str[$pos] !== '.') {
+            $shouldLookTop = false;
+            if($str[$pos + 1] !== '.') {
+                $shouldLookDiagonalRight = false;
+            }
+        }
+    }
+
+    $numberStr = '';
+
+    $numberStr = checkLeft($str, $pos -1) + checkRight($str,$pos);
+    $shouldLookTop = true;
+    $shouldLookDiagonalRight = true;
+}
+
+function checkBottom(String $str, $pos) {
+
+}
+
 ?>
