@@ -9,8 +9,8 @@ if($file) {
     $arr_str = preg_split("/\r\n|\n|\r/", $inputText);
     $count = count($arr_str);
 
-    echo(execute($arr_str, $total));
-    // echo($total);
+    execute($arr_str, $total);
+    var_dump($total);
 
     fclose($file);
 }
@@ -21,18 +21,18 @@ function execute($arr, &$total) {
     $symbolArr = [];
 
     for($i = 0; $i < count($arr); $i++) {
-        $match = preg_match_all('/[\!\@\#\$\%\^\&\*]/',$arr[$i], $symbolArr, PREG_OFFSET_CAPTURE);
-        // echo(count($symbolArr));
+        $match = preg_match_all('/[^0-9]/',$arr[$i], $symbolArr, PREG_OFFSET_CAPTURE);
+        $position = 0;
         if(!$match) {
             continue;
         }
         if($i === 2 ) {
-            var_dump($symbolArr[0][0][1]);
-            // echo($symbolArr[0][1][1]);
-            // echo($symbolArr[0][1][0]);
+            var_dump($symbolArr[0]);
         }
-
+        
+        
         for($j = 0; $j < count($symbolArr[0]); $j++) {
+            $position = $symbolArr[0][$j][1];
             if($i === 0) {
                 //not needed haha
 
@@ -43,30 +43,30 @@ function execute($arr, &$total) {
     
             } else {
                 //top
-
+                $total += checkY($arr[$i - 1], $position);
                 //bottom
-
+                $total += checkY($arr[$i + 1], $position);
                 //left
-
+                $total += checkLeft($arr[$i],$position);
                 //right
+                $total += checkRight($arr[$i],$position);
     
             }
+            echo($position . ':' . $total . "\n");
         }
         
     }
-    
-    var_dump($symbolArr);
     
     return null;
 }
 
 function checkLeft(String $str, $pos) {
-    if($str[$pos -1] === '.') {
-        return;
+    if(preg_match('/[^0-9]/',$str[$pos -1])) {
+        return 0;
     }
     $numberStr = '';
     $index = 0;
-    while($str[$index] !== '.') {
+    while($str[$index] !== '.' && $index > 0) {
         $numberStr = $str[$index] . $numberStr;
         $index--;
     }
@@ -75,12 +75,12 @@ function checkLeft(String $str, $pos) {
 }
 
 function checkRight(String $str, $pos) {
-    if($str[$pos + 1] === '.') {
-        return;
+    if(preg_match('/[^0-9]/',$str[$pos + 1])) {
+        return 0;
     }
     $numberStr = '';
     $index = 0;
-    while($str[$index] !== '.') {
+    while($str[$index] !== '.' && strlen($str) -1 > $index) {
         $numberStr = $str[$index] . $numberStr;
         $index++;
     }
@@ -88,25 +88,40 @@ function checkRight(String $str, $pos) {
     return (int)$numberStr;
 }
 
-function checkTop(String $str, $pos) {
-    if($str[$pos - 1] !== '.') {
-        if($str[$pos] !== '.') {
+function checkY(String $str, $pos) {
+    $shouldLookTop = true;
+    $shouldLookDiagonalRight = true;
+    //checks to see if it is a digit //could change it to 0-9 instead haha
+    if(preg_match('/[0-9]/',$str[$pos - 1])) {
+        //same check for the top
+        if(preg_match('/[0-9]/',$str[$pos])) {
             $shouldLookTop = false;
-            if($str[$pos + 1] !== '.') {
+            //same check for diag right
+            if(preg_match('/[0-9]/',$str[$pos + 1])) {
                 $shouldLookDiagonalRight = false;
+            }
+        }
+    } else {
+        //if it has these characters
+        if(preg_match('/[^0-9]/',$str[$pos])) {
+            //no match
+            if(preg_match('/[^0-9]/',$str[$pos + 1])) {
+                return 0;
             }
         }
     }
 
-    $numberStr = '';
+    $numberLeft = 0;
+    $number = 0;
 
-    $numberStr = checkLeft($str, $pos -1) + checkRight($str,$pos);
-    $shouldLookTop = true;
-    $shouldLookDiagonalRight = true;
-}
-
-function checkBottom(String $str, $pos) {
-
+    $numberLeft = checkLeft($str, $pos -1);
+    if($shouldLookTop) {
+        $numberLeft += checkRight($str, $pos);
+    }
+    if($shouldLookDiagonalRight) {
+        $number += checkRight($str, $pos + 1);
+    }
+    return $numberLeft + $number;
 }
 
 ?>
